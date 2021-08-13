@@ -6,149 +6,92 @@ _class: lead
 theme: gaia
 ---
 
-<style>
-    div.two-columns {
-        display: grid;
-        grid-gap: 1rem;
-    }
-    div.left-column {
-        grid-column: 1;
-    }
-    div.right-column {
-        grid-column: 2;
-    }
-</style>
+# slide
 
-# Spring GraphQL Introduction
+  
+    div.two-columns {  
+        display: grid;  
+        grid-gap: 1rem;  
+    }  
+    div.left-column {  
+        grid-column: 1;  
+    }  
+    div.right-column {  
+        grid-column: 2;  
+    }  
 
----
 
-## 概要
+## Spring GraphQL Introduction
 
-- [Spring GraphQL](https://github.com/spring-projects/spring-graphql)のマイルストーンバージョンが発表された
-- GraphQLは良いものだと思うので、みなさんにもSpring GraphQLを知ってもらいたい！
-- まずGraphQLについて簡単に説明
-- それからSpring GraphQLを使ったサーバー側の実装方法を説明
+### 概要
 
----
+* [Spring GraphQL](https://github.com/spring-projects/spring-graphql)のマイルストーンバージョンが発表された
+* GraphQLは良いものだと思うので、みなさんにもSpring GraphQLを知ってもらいたい！
+* まずGraphQLについて簡単に説明
+* それからSpring GraphQLを使ったサーバー側の実装方法を説明
 
-## 自己紹介
+### 自己紹介
 
-- うらがみ ([@backpaper0](https://github.com/backpaper0))
-- TIS株式会社
-- 仕事でGraphQL使っていないし、素振りもこれから
+* うらがみ \([@backpaper0](https://github.com/backpaper0)\)
+* TIS株式会社
+* 仕事でGraphQL使っていないし、素振りもこれから
 
----
+### 前置き
 
-## 前置き
+* この発表はSpring GraphQL 1.0.0-M1をもとにしています
+* GraphQLの仕様はCurrent Working Draftを参考にしています
+* スライドに現れるコードは説明のため一部省略していることがあります
 
-- この発表はSpring GraphQL 1.0.0-M1をもとにしています
-- GraphQLの仕様はCurrent Working Draftを参考にしています
-- スライドに現れるコードは説明のため一部省略していることがあります
+### このスライドとコード例の置き場所
 
----
+* [https://github.com/backpaper0/spring-graphql-introduction](https://github.com/backpaper0/spring-graphql-introduction)
 
-## このスライドとコード例の置き場所
+## GraphQL
 
-- https://github.com/backpaper0/spring-graphql-introduction
-
----
-
-<!-- _class: lead -->
-
-# GraphQL
-
----
-
-## GraphQLとは
+### GraphQLとは
 
 GraphQLはAPIのためのクエリ言語
 
 公式サイトのランディングページで書かれている特徴
 
-- 型システムによって何ができるのかが分かる
-- 必要なものを問い合わせて取得できる
-- 1回のリクエストで多くのリソースを取得
-- バージョンなしでAPIを進化させられる
+* 型システムによって何ができるのかが分かる
+* 必要なものを問い合わせて取得できる
+* 1回のリクエストで多くのリソースを取得
+* バージョンなしでAPIを進化させられる
 
----
+#### 特徴：型システムによって何ができるのかが分かる
 
-### 特徴：型システムによって何ができるのかが分かる
+* GraphQLは
+  * データを表す型を定義して、その型を使用してクエリを実行する
+  * 特定のデータベースやストレージには依存していない
 
-- GraphQLは
-    - データを表す型を定義して、その型を使用してクエリを実行する
-    - 特定のデータベースやストレージには依存していない
+#### 型定義の例：ブログ記事とカテゴリー
 
----
+ \`\`\`gql type Article { id: ID title: String content: String category: Category } type Category { id: ID name: String } type Query { article\(id: ID\): Article } \`\`\`
 
-### 型定義の例：ブログ記事とカテゴリー
+ \`\`\`gql query { article\(id: "1"\) { id title content category { id name } } } \`\`\`
 
-<div class="two-columns">
+&lt;/div&gt;
 
-<div class="left-column">
+#### 特別な型：QueryとMutationとSubscription
 
-```gql
-type Article {
-    id: ID
-    title: String
-    content: String
-    category: Category
-}
+* GraphQLは3つの型を特別扱いする
+  * `Query`はデータ取得のための型で`query`操作に対応する
+  * `Mutation`はデータ更新のための型で`mutation`操作に対応する
+  * `Subscription`はイベントをサブスクライブするための型で`subscription`操作に対応する
+* これらの型と操作の関連付けは`schema`キーワードでカスタマイズできる
 
-type Category {
-    id: ID
-    name: String
-}
-
-type Query {
-    article(id: ID): Article
-}
-```
-
-</div>
-
-<div class="right-column">
-
-```gql
-query {
-  article(id: "1") {
-    id
-    title
-    content
-    category {
-      id
-      name
-    }
-  }
-}
-```
-
-</div>
-
-</div>
-
----
-
-### 特別な型：QueryとMutationとSubscription
-
-- GraphQLは3つの型を特別扱いする
-    - `Query`はデータ取得のための型で`query`操作に対応する
-    - `Mutation`はデータ更新のための型で`mutation`操作に対応する
-    - `Subscription`はイベントをサブスクライブするための型で`subscription`操作に対応する
-- これらの型と操作の関連付けは`schema`キーワードでカスタマイズできる
-  ```gql
+  ```text
   schema {
       query: MyQuery
   }
   ```
 
----
-
-### Mutationの例
+#### Mutationの例
 
 型定義
 
-```gql
+```text
 type Mutation {
   newArticle(title: String, content: String, categoryId: ID): Article
 }
@@ -156,7 +99,7 @@ type Mutation {
 
 `mutation`操作
 
-```gql
+```text
 mutation {
   newArticle(title: "...", content: "...", categoryId: "1") {
     id
@@ -164,13 +107,11 @@ mutation {
 }
 ```
 
----
-
-### Subscriptionの例
+#### Subscriptionの例
 
 型定義
 
-```gql
+```text
 type Subscription {
   updatedArticle: Article
 }
@@ -178,7 +119,7 @@ type Subscription {
 
 `subscription`操作
 
-```gql
+```text
 subscription {
   updatedArticle {
     title
@@ -186,104 +127,46 @@ subscription {
 }
 ```
 
----
+#### 特徴：必要なものを問い合わせて取得できる
 
-### 特徴：必要なものを問い合わせて取得できる
+* GraphQLのクエリは型定義をもとにして必要とするフィールドを指定する
+* レスポンスは指定されたフィールドを返す
+* クライアントが必要とするものだけを明確に取得できる
 
-- GraphQLのクエリは型定義をもとにして必要とするフィールドを指定する
-- レスポンスは指定されたフィールドを返す
-- クライアントが必要とするものだけを明確に取得できる
+#### クエリの例：ブログ記事とカテゴリー
 
----
+ クエリ \`\`\`gql query { article\(id: "1"\) { title category { name } } } \`\`\`
 
-### クエリの例：ブログ記事とカテゴリー
+ 結果\(JSON\) \`\`\`json { "data": { "article": { "title": "Spring GraphQL introduction", "category": { "name": "Spring" } } } } \`\`\`
 
-<div class="two-columns">
+&lt;/div&gt;
 
-<div class="left-column">
+#### 特徴：1回のリクエストで多くのリソースを取得
 
-クエリ
+* GraphQLは1回のリクエストでルートとなるデータから関連を辿ってデータを取得して返す
+* また、1回のリクエストでクエリを複数個送信することも可能
 
-```gql
-query {
-  article(id: "1") {
-    title
-    category {
-      name
-    }
-  }
-}
-```
-
-</div>
-
-<div class="right-column">
-
-結果(JSON)
-
-```json
-{
-  "data": {
-    "article": {
-      "title": "Spring GraphQL introduction",
-      "category": {
-        "name": "Spring"
-      }
-    }
-  }
-}
-```
-
-</div>
-
-</div>
-
----
-
-### 特徴：1回のリクエストで多くのリソースを取得
-
-- GraphQLは1回のリクエストでルートとなるデータから関連を辿ってデータを取得して返す
-- また、1回のリクエストでクエリを複数個送信することも可能
-
-   ```gql
+  ```text
    query {
        article1: article(id: "3") { title }
        article2: article(id: "4") { title }
    }
-   ```
+  ```
 
----
+#### GraphQLとREST、リクエスト回数の比較
 
-### GraphQLとREST、リクエスト回数の比較
+ GraphQL !\[\]\(./communication-graphql.svg\)
 
-<div class="two-columns">
+ REST !\[\]\(./communication-rest.svg\)
 
-<div class="left-column">
+&lt;/div&gt;
 
-GraphQL
+#### 特徴：バージョンなしでAPIを進化させられる
 
-![](./communication-graphql.svg)
+* クライアントは必要となるフィールドを明確に指定してクエリを組み立てるため、型にフィールドが追加されても影響が無い
+* フィールド削除のために、それを予告する`@deprecated`ディレクティブが用意されている
 
-</div>
-
-<div class="right-column">
-
-REST
-
-![](./communication-rest.svg)
-
-</div>
-
-</div>
-
----
-
-### 特徴：バージョンなしでAPIを進化させられる
-
-- クライアントは必要となるフィールドを明確に指定してクエリを組み立てるため、型にフィールドが追加されても影響が無い
-- フィールド削除のために、それを予告する`@deprecated`ディレクティブが用意されている
-
-  ```gql
+  ```text
   type Article {
       id: ID
       title: String
@@ -293,42 +176,28 @@ REST
   }
   ```
 
----
+### GraphQLの嬉しいところ
 
-## GraphQLの嬉しいところ
+* 型を定義するだけでクライアントは欲しいデータに合わせてクエリを組み立てられる
+  * REST/OpenAPIだと欲しいデータの分だけエンドポイントを定義しないといけない
+* クエリがプログラミング言語に依存しておらず、クエリエディタで書いたものをそのままプログラムに組み込める
+  * OpenAPIにおけるクエリはHTTPリクエストなため言語非依存と言えるが、低レイヤーなため言語/ライブラリのAPIになっておりポータビリティは高いとは思えない
 
-- 型を定義するだけでクライアントは欲しいデータに合わせてクエリを組み立てられる
-    - REST/OpenAPIだと欲しいデータの分だけエンドポイントを定義しないといけない
-- クエリがプログラミング言語に依存しておらず、クエリエディタで書いたものをそのままプログラムに組み込める
-    - OpenAPIにおけるクエリはHTTPリクエストなため言語非依存と言えるが、低レイヤーなため言語/ライブラリのAPIになっておりポータビリティは高いとは思えない
+## Spring GraphQL
 
----
+### Spring GraphQLとは
 
-<!-- _class: lead -->
+* SpringアプリケーションでGraphQLのサーバー側を実装できる
+* Spring Web MVCとSpring WebFluxの両方に対応
+* [GraphQL Java](https://github.com/graphql-java/graphql-java)を使用している
+* Spring Boot Starterが用意されている
+* テストをサポートするクラスが用意されている
 
-# Spring GraphQL
+## 使用準備
 
----
+### pom.xmlへ依存を追加する
 
-## Spring GraphQLとは
-
-- SpringアプリケーションでGraphQLのサーバー側を実装できる
-- Spring Web MVCとSpring WebFluxの両方に対応
-- [GraphQL Java](https://github.com/graphql-java/graphql-java)を使用している
-- Spring Boot Starterが用意されている
-- テストをサポートするクラスが用意されている
-
----
-
-<!-- _class: lead -->
-
-# 使用準備
-
----
-
-## pom.xmlへ依存を追加する
-
-```xml
+```markup
 <dependency>
     <groupId>org.springframework.experimental</groupId>
     <artifactId>graphql-spring-boot-starter</artifactId>
@@ -341,22 +210,18 @@ REST
 </dependency>
 ```
 
----
+### Subscriptionを使う場合はwebsocketも追加
 
-## Subscriptionを使う場合はwebsocketも追加
-
-```xml
+```markup
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-websocket</artifactId>
 </dependency>
 ```
 
----
+### テストのための依存も追加する
 
-## テストのための依存も追加する
-
-```xml
+```markup
 <dependency>
     <groupId>org.springframework.graphql</groupId>
     <artifactId>spring-graphql-test</artifactId>
@@ -371,58 +236,44 @@ REST
 </dependency>
 ```
 
----
+### 型定義を配置する
 
-## 型定義を配置する
+* クラスパス上の`graphql`ディレクトリ内の次の拡張子のファイルが読み込み対象となる
+  * `.graphqls`
+  * `.graphql`
+  * `.gql`
+  * `.gqls`
+* とりあえず`src/main/resources/graphql/schema.gql`にでも書いておけばOK
 
-- クラスパス上の`graphql`ディレクトリ内の次の拡張子のファイルが読み込み対象となる
-    - `.graphqls`
-    - `.graphql`
-    - `.gql`
-    - `.gqls`
-- とりあえず`src/main/resources/graphql/schema.gql`にでも書いておけばOK
-
----
-
-## 開発時に便利な設定
+### 開発時に便利な設定
 
 GraphiQLというGraphQLのGUIクライアントを有効化する
 
-```properties
+```text
 spring.graphql.graphiql.enabled=true
 ```
 
 ※なお、デフォルトで有効化されているので実際には明示的に設定する必要はない
 
----
-
-### Spring GraphQLに組み込まれたGraphiQLについて
+#### Spring GraphQLに組み込まれたGraphiQLについて
 
 現時点では次の制約がある
 
-- 認証に対応していない(`Authorization`ヘッダを設定できない、Cookieが送信されない)
-- `subscription`操作に対応していない
+* 認証に対応していない\(`Authorization`ヘッダを設定できない、Cookieが送信されない\)
+* `subscription`操作に対応していない
 
 そのため、コード例には独自にカスタマイズしたGraphiQLを用意している
 
----
+## サーバーサイドの実装方法
 
-<!-- _class: lead -->
-
-# サーバーサイドの実装方法
-
----
-
-## データのフェッチ方法を定義する
+### データのフェッチ方法を定義する
 
 やることは次の通り。
 
-- `org.springframework.graphql.boot.RuntimeWiringBuilderCustomizer`を実装したコンポーネントを用意する
-- `customize`メソッドで引数の`graphql.schema.idl.RuntimeWiring.Builder`を使用してデータのフェッチ方法を定義する
+* `org.springframework.graphql.boot.RuntimeWiringBuilderCustomizer`を実装したコンポーネントを用意する
+* `customize`メソッドで引数の`graphql.schema.idl.RuntimeWiring.Builder`を使用してデータのフェッチ方法を定義する
 
----
-
-## データのフェッチ方法を定義する
+### データのフェッチ方法を定義する
 
 ```java
 @Component
@@ -442,11 +293,9 @@ public class ArticleDataWriring implements RuntimeWiringBuilderCustomizer {
 }
 ```
 
----
+### データのフェッチ方法を定義する
 
-## データのフェッチ方法を定義する
-
-```gql
+```text
 type Article {
     id: ID
     title: String
@@ -464,15 +313,9 @@ type Query {
 }
 ```
 
----
+## デモ
 
-<!-- _class: lead -->
-
-# デモ
-
----
-
-## DataFetcher.getの戻り値の型
+### DataFetcher.getの戻り値の型
 
 ```java
 public interface DataFetcher<T> {
@@ -481,34 +324,24 @@ public interface DataFetcher<T> {
 }
 ```
 
----
+### DataFetcher.getの戻り値の型
 
-## DataFetcher.getの戻り値の型
+* `T`
+* `java.util.Optional<T>`
+* `java.lang.Iterable<T>`, `java.util.stream.Stream<T>`, `java.util.Iterator<T>`, 配列
+* `reactor.core.publisher.Mono<T>`, `reactor.core.publisher.Flux<T>`
+* `graphql.execution.DataFetcherResult<T>`
+* `java.util.concurrent.CompletionStage<T>`
 
-- `T`
-- `java.util.Optional<T>`
-- `java.lang.Iterable<T>`, `java.util.stream.Stream<T>`, `java.util.Iterator<T>`, 配列
-- `reactor.core.publisher.Mono<T>`, `reactor.core.publisher.Flux<T>`
-- `graphql.execution.DataFetcherResult<T>`
-- `java.util.concurrent.CompletionStage<T>`
+## テスト
 
----
+### テストの書き方
 
-<!-- _class: lead -->
+* テストクラスに`@AutoConfigureGraphQlTester`を付ける
+* `GraphQlTester`をインジェクションする
+* テストメソッドで`GraphQlTester`を使ってテストをする
 
-# テスト
-
----
-
-## テストの書き方
-
-- テストクラスに`@AutoConfigureGraphQlTester`を付ける
-- `GraphQlTester`をインジェクションする
-- テストメソッドで`GraphQlTester`を使ってテストをする
-
----
-
-### テストクラスの例
+#### テストクラスの例
 
 ```java
 @SpringBootTest
@@ -526,9 +359,7 @@ public class BlogTest {
 }
 ```
 
----
-
-### クエリの構築
+#### クエリの構築
 
 `GraphQlTester`へ渡すクエリを構築する
 
@@ -543,9 +374,7 @@ String query = "{" +
         "}";
 ```
 
----
-
-### クエリの構築
+#### クエリの構築
 
 最近のJavaならテキストブロックで書けてありがたい
 
@@ -562,9 +391,7 @@ String query = """
         """;
 ```
 
----
-
-### クエリの実行とアサーション
+#### クエリの実行とアサーション
 
 ```java
 graphQlTester.query(query)
@@ -581,40 +408,28 @@ graphQlTester.query(query)
 
 ※なお`path`メソッドに渡すパスには[JsonPath](https://github.com/json-path/JsonPath)が使える
 
----
+## N + 1問題
 
-<!-- _class: lead -->
+### N + 1問題とは
 
-# N + 1問題
+* 主にDBアクセス周りで言及される話題
+* ループの中で都度クエリを発行してパフォーマンス低下を招いてしまう問題
+* 例：`select * from article`で`article`を複数件取得、取得した`article`をループしながら`select * from category where id = ?`で`category`を取得する
+  * 最初の1回 + `article`の件数分のクエリが発行されてしまう
 
----
+### N + 1問題の解決策：DataLoader
 
-## N + 1問題とは
+* DBアクセスであればテーブルを結合すれば解決できる
+* GraphQLではDataLoaderを使う
+* 先程の例を使って雑に述べると`select * from category where id = ?`をN回行っていたところを、`select * from category where id in (...)`を1回行うようにする
 
-- 主にDBアクセス周りで言及される話題
-- ループの中で都度クエリを発行してパフォーマンス低下を招いてしまう問題
-- 例：`select * from article`で`article`を複数件取得、取得した`article`をループしながら`select * from category where id = ?`で`category`を取得する
-    - 最初の1回 + `article`の件数分のクエリが発行されてしまう
+### DataLoaderを使った実装方法
 
----
+* `org.dataloader.BatchLoader`を実装したクラスを作る
+* `org.springframework.graphql.web.WebInterceptor`を実装したクラスを用意して`intercept`メソッドでリクエストオブジェクトへDataLoaderを登録する
+* データフェッチ時に`env`からDataLoaderを取り出し、`load`メソッドを使用する
 
-## N + 1問題の解決策：DataLoader
-
-- DBアクセスであればテーブルを結合すれば解決できる
-- GraphQLではDataLoaderを使う
-- 先程の例を使って雑に述べると`select * from category where id = ?`をN回行っていたところを、`select * from category where id in (...)`を1回行うようにする
-
----
-
-## DataLoaderを使った実装方法
-
-- `org.dataloader.BatchLoader`を実装したクラスを作る
-- `org.springframework.graphql.web.WebInterceptor`を実装したクラスを用意して`intercept`メソッドでリクエストオブジェクトへDataLoaderを登録する
-- データフェッチ時に`env`からDataLoaderを取り出し、`load`メソッドを使用する
-
----
-
-### BatchLoaderの実装例
+#### BatchLoaderの実装例
 
 ```java
 @Component
@@ -630,9 +445,7 @@ public class AuthorLoader implements BatchLoader<Integer, Author> {
 }
 ```
 
----
-
-### WebInterceptorでDataLoaderを登録
+#### WebInterceptorでDataLoaderを登録
 
 ```java
 @Component
@@ -653,9 +466,7 @@ public class AuthorLoaderRegistration implements WebInterceptor {
 }
 ```
 
----
-
-### DataLoaderでデータフェッチ
+#### DataLoaderでデータフェッチ
 
 ```java
 @Component
@@ -672,18 +483,12 @@ public class ComicDataWiring implements RuntimeWiringBuilderCustomizer {
 }
 ```
 
----
+## デモ
 
-<!-- _class: lead -->
+### DataLoader
 
-# デモ
-
----
-
-## DataLoader
-
-- `DataLoaderOptions`の`maxBatchSize`でバッチサイズを設定できる
-- `BatchLoader`の他に`MappedBatchLoader`がある
+* `DataLoaderOptions`の`maxBatchSize`でバッチサイズを設定できる
+* `BatchLoader`の他に`MappedBatchLoader`がある
 
   ```java
   public interface BatchLoader<K, V> {
@@ -697,36 +502,26 @@ public class ComicDataWiring implements RuntimeWiringBuilderCustomizer {
   }
   ```
 
----
+## ページング
 
-<!-- _class: lead -->
+### 公式オススメのページング
 
-# ページング
+* GraphQL公式ガイドに[Pagination](https://graphql.org/learn/pagination/)というドキュメントがある
+* ページングのオススメ方式が説明されており、最後に[Relay](https://relay.dev/)の[GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm)が紹介されている
+  * > Relay is a JavaScript framework for building data-driven React applications.
 
----
+### GraphQL Cursor Connections Specification
 
-## 公式オススメのページング
+* 末尾に`Connection`と付いた型を定義する
+* フィールドは`edges`と`pageInfo`
+* `edges`はリストで各要素は返したい型とカーソルのペア
+* `pageInfo`は返されたページの情報
+* クエリは1ページの最大要素数と条件となるカーソルを受け取る
+* カーソルは`String`または`String`にシリアライズされるカスタム`scalar`
 
-- GraphQL公式ガイドに[Pagination](https://graphql.org/learn/pagination/)というドキュメントがある
-- ページングのオススメ方式が説明されており、最後に[Relay](https://relay.dev/)の[GraphQL Cursor Connections Specification](https://relay.dev/graphql/connections.htm)が紹介されている
-    - > Relay is a JavaScript framework for building data-driven React applications.
+### Connections例：型定義
 
----
-
-## GraphQL Cursor Connections Specification
-
-- 末尾に`Connection`と付いた型を定義する
-- フィールドは`edges`と`pageInfo`
-- `edges`はリストで各要素は返したい型とカーソルのペア
-- `pageInfo`は返されたページの情報
-- クエリは1ページの最大要素数と条件となるカーソルを受け取る
-- カーソルは`String`または`String`にシリアライズされるカスタム`scalar`
-
----
-
-## Connections例：型定義
-
-```gql
+```text
 type ExampleConnection {
     edges: [ExampleEdge!]!
     pageInfo: PageInfo!
@@ -742,11 +537,10 @@ type PageInfo {
     endCursor: String
 }
 ```
----
 
-## Connections例：クエリ定義
+### Connections例：クエリ定義
 
-```gql
+```text
 type Query {
     # 前方のカーソル
     exampleForward(first: Int! = 10, after: String): ExampleConnection!
@@ -755,14 +549,12 @@ type Query {
 }
 ```
 
-- なお、前方と後方のどちらの場合も返されるエッジの順序は同じにする必要がある
-- 前方は`3, 4, 5...`、後方は`5, 4, 3...`とするのはダメということ
+* なお、前方と後方のどちらの場合も返されるエッジの順序は同じにする必要がある
+* 前方は`3, 4, 5...`、後方は`5, 4, 3...`とするのはダメということ
 
----
+### Connections例：クエリ
 
-## Connections例：クエリ
-
-```gql
+```text
 query {
   exampleForward(first: 10, after: "...") {
     edges {
@@ -779,19 +571,15 @@ query {
 }
 ```
 
----
+### Spring GraphQLでConnections
 
-## Spring GraphQLでConnections
+* Spring GraphQLで、というかGraphQL Javaで用意されているクラスを使う
+  * `graphql.relay.Connection<T>`
+  * `graphql.relay.Edge<T>`
+  * `graphql.relay.ConnectionCursor`
+  * `graphql.relay.PageInfo`
 
-- Spring GraphQLで、というかGraphQL Javaで用意されているクラスを使う
-    - `graphql.relay.Connection<T>`
-    - `graphql.relay.Edge<T>`
-    - `graphql.relay.ConnectionCursor`
-    - `graphql.relay.PageInfo`
-
----
-
-## Connections実装例：DataFetcher全体
+### Connections実装例：DataFetcher全体
 
 ```java
 paramBuilder.type("Query", b -> b.dataFetcher("exampleForward", env -> {
@@ -806,9 +594,7 @@ paramBuilder.type("Query", b -> b.dataFetcher("exampleForward", env -> {
 }));
 ```
 
----
-
-## Connections実装例：Edgeのリスト構築
+### Connections実装例：Edgeのリスト構築
 
 ```java
 List<Example> examples = ...
@@ -819,9 +605,7 @@ List<Edge<Example>> edges = examples.stream().map(example -> {
 }).collect(Collectors.toList());
 ```
 
----
-
-## Connections実装例：PageInfo構築
+### Connections実装例：PageInfo構築
 
 ```java
 ConnectionCursor startCursor = new DefaultConnectionCursor("...");
@@ -833,25 +617,15 @@ PageInfo pageInfo = new DefaultPageInfo(
     startCursor, endCursor, hasPreviousPage, hasNextPage);
 ```
 
----
+## デモ
 
-<!-- _class: lead -->
+## エラーの返却と例外ハンドリング
 
-# デモ
-
----
-
-<!-- _class: lead -->
-
-# エラーの返却と例外ハンドリング
-
----
-
-## GraphQLのエラー表現
+### GraphQLのエラー表現
 
 GraphQLの仕様にはエラーの表現も含まれている
 
-```json
+```javascript
 {
     "errors": [
         {
@@ -863,9 +637,7 @@ GraphQLの仕様にはエラーの表現も含まれている
 }
 ```
 
----
-
-### Spring GraphQLでエラーを返す
+#### Spring GraphQLでエラーを返す
 
 `DataFetcher`から例外をスローするとエラーに変換して返してくれる
 
@@ -875,7 +647,7 @@ paramBuilder.type("Query", b -> b.dataFetcher("hello", env -> {
 }));
 ```
 
-```json
+```javascript
 {
     "errors": [{
         "message": "Exception occurred while processing Foo.bar",
@@ -885,9 +657,7 @@ paramBuilder.type("Query", b -> b.dataFetcher("hello", env -> {
 }
 ```
 
----
-
-### Spring GraphQLでの例外ハンドリング
+#### Spring GraphQLでの例外ハンドリング
 
 例外をハンドリングする場合は`DataFetcherExceptionResolver`を実装する
 
@@ -906,30 +676,22 @@ public class MyExceptionResolver implements DataFetcherExceptionResolver {
 }
 ```
 
----
+## その他の話題
 
-<!-- _class: lead -->
+### 紹介していないGraphQLの仕様はまだまだある
 
-# その他の話題
-
----
-
-## 紹介していないGraphQLの仕様はまだまだある
-
-- Scalar
-- Interface
-- Union
-- Enum
-- Input Object
-- Directive
+* Scalar
+* Interface
+* Union
+* Enum
+* Input Object
+* Directive
 
 ScalarとEnumの実装方法を簡単に説明
 
----
+#### Scalarの実装方法
 
-### Scalarの実装方法
-
-```gql
+```text
 scalar URI
 ```
 
@@ -941,9 +703,7 @@ GraphQLScalarType scalarType = GraphQLScalarType.newScalar()
 paramBuilder.scalar(scalarType);
 ```
 
----
-
-### Scalarの実装方法
+#### Scalarの実装方法
 
 ```java
 public class URICoercing implements Coercing<URI, String> {
@@ -964,11 +724,9 @@ public class URICoercing implements Coercing<URI, String> {
 }
 ```
 
----
+#### Enumの実装方法
 
-### Enumの実装方法
-
-```gql
+```text
 enum Visibility {
     PUBLIC
     PRIVATE
@@ -988,22 +746,18 @@ EnumValuesProvider enumValuesProvider = new NaturalEnumValuesProvider<>(Visibili
 paramBuilder.type("Visibility", b -> b.enumValues(enumValuesProvider));
 ```
 
----
-
-## GraphQLに合わないAPIが欲しいときは？
+### GraphQLに合わないAPIが欲しいときは？
 
 例えば
 
-- 複雑なテーブル結合を必要とするクエリ
-- バイナリデータを返したい(ダウンロード)
+* 複雑なテーブル結合を必要とするクエリ
+* バイナリデータを返したい\(ダウンロード\)
 
 など
 
-そういった場合はRestControllerを書けば良い(Spring Web MVC/Spring WebFluxが土台になっている強み)
+そういった場合はRestControllerを書けば良い\(Spring Web MVC/Spring WebFluxが土台になっている強み\)
 
----
-
-## コンテキストの伝播
+### コンテキストの伝播
 
 GraphQL Javaから呼び出される`DataFetcher`などのコンポーネントはSpring Web MVCのリクエストをハンドリングするスレッドと同じスレッドで実行されるとは限らない
 
@@ -1011,57 +765,46 @@ GraphQL Javaから呼び出される`DataFetcher`などのコンポーネント�
 
 詳しくはSpring GraphQLリファレンスのContext Propagationセクションを参照
 
----
+### 認証・認可はどうする？
 
-## 認証・認可はどうする？
+* GraphQLのエンドポイントは単一なため、エンドポイントに対する認証・認可だけでは不十分
+* Spring GraphQLのリファレンスにはデータをフェッチするときに使用するサービスクラスなどに`@PreAuthorize`や`@Secured`を付けて保護する方法が記載されている
 
-- GraphQLのエンドポイントは単一なため、エンドポイントに対する認証・認可だけでは不十分
-- Spring GraphQLのリファレンスにはデータをフェッチするときに使用するサービスクラスなどに`@PreAuthorize`や`@Secured`を付けて保護する方法が記載されている
-
----
-
-## メトリクス
+### メトリクス
 
 `spring-boot-starter-actuator`がクラスパス上に存在するとGraphQLリクエストのメトリクスが収集される
 
-ここまでのデモで収集されたメトリクスを見てみる(というデモ)
+ここまでのデモで収集されたメトリクスを見てみる\(というデモ\)
 
----
+### Querydslの統合
 
-## Querydslの統合
-
-Querydslのリポジトリから`DataFetcher`が簡単に作れるらしい(まだ試していない)
+Querydslのリポジトリから`DataFetcher`が簡単に作れるらしい\(まだ試していない\)
 
 詳しくはSpring GraphQLリファレンスのData Integrationセクションを参照
 
----
+### ロードマップ
 
-## ロードマップ
+* 9月頭のSpringOneの前にM2到達予定
+* マイルストーンフェーズは11月のSpring Boot 2.6以降も続く
+* 今年の後半にリリース候補版\(RC\)フェーズに入る予定
 
-- 9月頭のSpringOneの前にM2到達予定
-- マイルストーンフェーズは11月のSpring Boot 2.6以降も続く
-- 今年の後半にリリース候補版(RC)フェーズに入る予定
+### M2に入るかもしれない機能
 
----
-
-## M2に入るかもしれない機能
-
-- Spring Dataの統合(Querydslと同様に)
-- アノテーションによる`DataFetcher`登録(`@RestController`みたいな)
-- `DataLoader`登録方法の改善
-- GraphQLクライアントの追加
-- マルチパート(ファイルアップロード)の対応
+* Spring Dataの統合\(Querydslと同様に\)
+* アノテーションによる`DataFetcher`登録\(`@RestController`みたいな\)
+* `DataLoader`登録方法の改善
+* GraphQLクライアントの追加
+* マルチパート\(ファイルアップロード\)の対応
 
 など
 
----
+### 参考リソース
 
-## 参考リソース
+* [Spring GraphQL\(GitHub\)](https://github.com/spring-projects/spring-graphql)
+* [Hello, Spring GraphQL](https://spring.io/blog/2021/07/06/hello-spring-graphql)
+* [Introducing Spring GraphQL](https://spring.io/blog/2021/07/06/introducing-spring-graphql)
+* [GraphQL Java公式サイト](https://www.graphql-java.com/)
+* [GraphQL公式サイト](https://graphql.org/)
+* [GraphQLの仕様](https://spec.graphql.org/)
+* [VSCode拡張](https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql)
 
-- [Spring GraphQL(GitHub)](https://github.com/spring-projects/spring-graphql)
-- [Hello, Spring GraphQL](https://spring.io/blog/2021/07/06/hello-spring-graphql)
-- [Introducing Spring GraphQL](https://spring.io/blog/2021/07/06/introducing-spring-graphql)
-- [GraphQL Java公式サイト](https://www.graphql-java.com/)
-- [GraphQL公式サイト](https://graphql.org/)
-- [GraphQLの仕様](https://spec.graphql.org/)
-- [VSCode拡張](https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql)

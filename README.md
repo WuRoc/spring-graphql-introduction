@@ -20,17 +20,17 @@ npx @marp-team/marp-cli@latest --html --output docs/index.html docs/slide.md
 
 `/docs`をGitHub Pagesでホスティングするように設定しているので次のURLでスライドが見られる。
 
-- https://backpaper0.github.io/spring-graphql-introduction/
+* [https://backpaper0.github.io/spring-graphql-introduction/](https://backpaper0.github.io/spring-graphql-introduction/)
 
 ## デモの手順
 
 ### 準備
 
-```
+```text
 ./mvnw spring-boot:run
 ```
 
-ブラウザで http://localhost:8080/my-graphiql を開く。
+ブラウザで [http://localhost:8080/my-graphiql](http://localhost:8080/my-graphiql) を開く。
 
 #### ※GraphiQLについて
 
@@ -40,19 +40,15 @@ Spring GraphQLにビルトインされているGraphiQLは認証と`subscription
 
 `create-react-app`で作ったReactアプリケーションとなっていて、カスタマイズしたい場合はまず`npm install`で依存ライブラリを準備する。
 
-それから`npm start`で起動する。
-カスタマイズ中はこちらで動作確認しながら開発を進めると良い。
-なお、このためにSpring Bootアプリケーション側でCORSの設定を入れている。
+それから`npm start`で起動する。 カスタマイズ中はこちらで動作確認しながら開発を進めると良い。 なお、このためにSpring Bootアプリケーション側でCORSの設定を入れている。
 
-Spring Bootアプリケーションに組み込むには、まずSpring Bootアプリケーション側の`src/main/resources/static/my-graphiql`を削除する。
-それから`npm run build`を実施すると`src/main/resources/static/my-graphiql`にビルドされたHTMLやJSファイルが書き出される。
-あとは`mvn spring-boot:run`をすれば良い。
+Spring Bootアプリケーションに組み込むには、まずSpring Bootアプリケーション側の`src/main/resources/static/my-graphiql`を削除する。 それから`npm run build`を実施すると`src/main/resources/static/my-graphiql`にビルドされたHTMLやJSファイルが書き出される。 あとは`mvn spring-boot:run`をすれば良い。
 
 ### query操作
 
 スライドにもあったクエリーを試す。
 
-```gql
+```text
 query {
   article(id: 1) {
     id
@@ -68,7 +64,7 @@ query {
 
 タイトルだけ取得するようにしてみる。
 
-```gql
+```text
 query {
   article(id: 1) {
     title
@@ -78,7 +74,7 @@ query {
 
 変数を使ってみる。
 
-```gql
+```text
 query GetArticle($id: ID!) {
   article(id: $id) {
     title
@@ -86,7 +82,7 @@ query GetArticle($id: ID!) {
 }
 ```
 
-```json
+```javascript
 {
   "id": 1
 }
@@ -94,7 +90,7 @@ query GetArticle($id: ID!) {
 
 `curl`でも試してみる。
 
-```
+```text
 curl -s http://localhost:8080/graphql -H "Content-Type: application/json" -d '{"query": "{article(id: 1) { id, title, content, category { id, name } }}"}' | jq
 ```
 
@@ -102,7 +98,7 @@ curl -s http://localhost:8080/graphql -H "Content-Type: application/json" -d '{"
 
 `subscription`操作も試してみる。
 
-```gql
+```text
 subscription {
   count
 }
@@ -110,10 +106,9 @@ subscription {
 
 結果のエリアにカウントアップされて1から10まで表示される。
 
-`wscat`でも確認してみる。
-`wscat`は`npm install -g wscat`でインストールできる。
+`wscat`でも確認してみる。 `wscat`は`npm install -g wscat`でインストールできる。
 
-```
+```text
 wscat --connect ws://localhost:8080/graphql
 ```
 
@@ -121,20 +116,19 @@ wscat --connect ws://localhost:8080/graphql
 
 まずは`connection_init`が必要。
 
-```
+```text
 {"type": "connection_init"}
 ```
 
-それから`subscribe`。
-待っていると1秒おきにカウントアップする値が返される。
+それから`subscribe`。 待っていると1秒おきにカウントアップする値が返される。
 
-```
+```text
 {"type": "subscribe", "id": "...", "payload": {"query": "subscription { count }"}}
 ```
 
 もちろん変数も使える。
 
-```
+```text
 {"type": "subscribe", "id": "...", "payload": {"query": "subscription Count($size: Int!) { count(size: $size) }", "variables": {"size": 5 }}}
 ```
 
@@ -142,7 +136,7 @@ wscat --connect ws://localhost:8080/graphql
 
 まずはN + 1。
 
-```gql
+```text
 query {
   comics {
     title
@@ -157,7 +151,7 @@ query {
 
 次にDataLoader版。
 
-```gql
+```text
 query {
   comics {
     title
@@ -174,7 +168,7 @@ query {
 
 まずは`after`を指定せずクエリーーを発行して返ってくる値を確認する。
 
-```gql
+```text
 query GitCommits {
   history {
     forward(first: 3) {
@@ -198,7 +192,7 @@ query GitCommits {
 
 それから`pageInfo`の値を見ながら`after`を設定しつつクエリーを試す。
 
-```gql
+```text
 query GitCommits {
   history {
     forward(first: 3, after: "3") {
@@ -222,7 +216,7 @@ query GitCommits {
 
 後方も試す。
 
-```gql
+```text
 query GitCommits {
   history {
     backward(last: 3, before: "7") {
@@ -246,9 +240,9 @@ query GitCommits {
 
 ### WIP: 認証・認可
 
-次のクエリーを実行するとエラー(`Unauthorized`)になる。
+次のクエリーを実行するとエラー\(`Unauthorized`\)になる。
 
-```gql
+```text
 {
   security {
     protected
@@ -258,7 +252,7 @@ query GitCommits {
 
 REQUEST HEADERSという場所に次のJSONを書いて実行するとエラーにならず値が返ってくる。
 
-```json
+```javascript
 {
   "Authorization": "Basic ZGVtbzpzZWNyZXQ="
 }
@@ -266,10 +260,9 @@ REQUEST HEADERSという場所に次のJSONを書いて実行するとエラー�
 
 これは該当の`DataFetcher`内で呼び出されているコンポーネントのメソッドに`@PreAuthorize("isAuthenticated()")`を付けている。
 
-カスタム`directive`で認証を表現した例も作ってみた。
-次のクエリーが`@authenticated`というカスタム`directive`で保護したフィールドへのアクセスとなる。
+カスタム`directive`で認証を表現した例も作ってみた。 次のクエリーが`@authenticated`というカスタム`directive`で保護したフィールドへのアクセスとなる。
 
-```gql
+```text
 {
   security {
     protected2
@@ -281,20 +274,19 @@ REQUEST HEADERSという場所に次のJSONを書いて実行するとエラー�
 
 ### メトリクス
 
-```
+```text
 curl -s localhost:8080/actuator/metrics/graphql.request | jq
 ```
 
-```
+```text
 curl -s localhost:8080/actuator/metrics/graphql.datafetcher | jq
 ```
 
-```
+```text
 curl -s localhost:8080/actuator/metrics/graphql.error | jq
 ```
 
----
-
 ## ライセンス
 
-スライド(`docs/`配下にあるファイル)は[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)、ソースコード(スライド以外のファイル)は[MIT](https://opensource.org/licenses/mit-license.php)を適用します。
+スライド\(`docs/`配下にあるファイル\)は[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)、ソースコード\(スライド以外のファイル\)は[MIT](https://opensource.org/licenses/mit-license.php)を適用します。
+
