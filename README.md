@@ -120,13 +120,13 @@ wscat --connect ws://localhost:8080/graphql
 {"type": "connection_init"}
 ```
 
-それから`subscribe`。 待っていると1秒おきにカウントアップする値が返される。
+然后订阅。如果您等待，则返回一个每秒递增的值。
 
 ```text
 {"type": "subscribe", "id": "...", "payload": {"query": "subscription { count }"}}
 ```
 
-もちろん変数も使える。
+当然你也可以使用变量。
 
 ```text
 {"type": "subscribe", "id": "...", "payload": {"query": "subscription Count($size: Int!) { count(size: $size) }", "variables": {"size": 5 }}}
@@ -134,7 +134,7 @@ wscat --connect ws://localhost:8080/graphql
 
 ### DataLoader
 
-まずはN + 1。
+首先，N+1。
 
 ```text
 query {
@@ -147,9 +147,9 @@ query {
 }
 ```
 
-`Fetch Query.comics`以降のログを見ると`comics`で1回、`comics.author`で10回のクエリーが発行されていることがわかる。
+如果查看`Fetch Query.comics` 之后的日志，可以看到`comics` 发出了1 个查询，`comics.author` 发出了10 个查询。
 
-次にDataLoader版。
+接下来是 Data Loader 版本。
 
 ```text
 query {
@@ -162,11 +162,11 @@ query {
 }
 ```
 
-`Fetch Query.comics`以降のログを見ると`comics`と`comics.author`が共に1回ずつのクエリー発行で済んでいることがわかる。
+如果查看`Fetch Query.comics` 之后的日志，可以看到`comics` 和`comics.author` 都只需要发出一个查询。
 
-### ページング
+### 分页
 
-まずは`after`を指定せずクエリーーを発行して返ってくる値を確認する。
+首先，在不指定 after 的情况下发出查询并检查返回值。
 
 ```text
 query GitCommits {
@@ -190,7 +190,7 @@ query GitCommits {
 }
 ```
 
-それから`pageInfo`の値を見ながら`after`を設定しつつクエリーを試す。
+然后在查看 pageInfo 的值后在设置后尝试查询。
 
 ```text
 query GitCommits {
@@ -214,7 +214,7 @@ query GitCommits {
 }
 ```
 
-後方も試す。
+也向后尝试。
 
 ```text
 query GitCommits {
@@ -238,9 +238,9 @@ query GitCommits {
 }
 ```
 
-### WIP: 認証・認可
+### WIP: 认证/授权
 
-次のクエリーを実行するとエラー\(`Unauthorized`\)になる。
+运行以下查询会导致错误（未经授权）。
 
 ```text
 {
@@ -250,7 +250,7 @@ query GitCommits {
 }
 ```
 
-REQUEST HEADERSという場所に次のJSONを書いて実行するとエラーにならず値が返ってくる。
+如果在 `REQUEST HEADERS` 的地方写入如下 JSON 并执行，则不会出错并返回值。
 
 ```javascript
 {
@@ -258,9 +258,9 @@ REQUEST HEADERSという場所に次のJSONを書いて実行するとエラー�
 }
 ```
 
-これは該当の`DataFetcher`内で呼び出されているコンポーネントのメソッドに`@PreAuthorize("isAuthenticated()")`を付けている。
+这将`@PreAuthorize("isAuthenticated()")` 添加到相应`DataFetcher` 中调用的组件的方法中。
 
-カスタム`directive`で認証を表現した例も作ってみた。 次のクエリーが`@authenticated`というカスタム`directive`で保護したフィールドへのアクセスとなる。
+我还举了一个用自定义指令表达身份验证的例子。以下查询将访问名为`@authenticated` 的自定义定向受保护字段。
 
 ```text
 {
@@ -270,9 +270,9 @@ REQUEST HEADERSという場所に次のJSONを書いて実行するとエラー�
 }
 ```
 
-`Authorization`ヘッダーの有無による違いを試してみてほしい。
+尝试使用和不使用 `Authorization` 标头的区别。
 
-### メトリクス
+指标
 
 ```text
 curl -s localhost:8080/actuator/metrics/graphql.request | jq
@@ -286,7 +286,7 @@ curl -s localhost:8080/actuator/metrics/graphql.datafetcher | jq
 curl -s localhost:8080/actuator/metrics/graphql.error | jq
 ```
 
-## ライセンス
+## 执照
 
-スライド\(`docs/`配下にあるファイル\)は[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)、ソースコード\(スライド以外のファイル\)は[MIT](https://opensource.org/licenses/mit-license.php)を適用します。
+CC BY 4.0 适用于幻灯片（docs / 下的文件），MIT 适用于源代码（幻灯片以外的文件）。
 
