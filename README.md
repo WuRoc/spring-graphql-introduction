@@ -2,51 +2,51 @@
 
 ## 概要
 
-JSUG Study Group 2021 Part 2 这是晚上的演示文稿的幻灯片和代码示例，彻底讨论了 Spring GraphQL。
+[JSUG勉強会 2021年その2 Spring GraphQLをとことん語る夕べ](https://jsug.doorkeeper.jp/events/124798)での発表のスライドとコード例です。
 
-## 文档构建
+## 資料のビルド
 
-构建用 PlantUML 绘制的图形。
+PlantUMLで描いた図をビルドする。
 
 ```bash
 java -jar ~/plantuml.jar -tsvg docs/plantuml.pu
 ```
 
-构建幻灯片。
+スライドをビルドする。
 
 ```bash
 npx @marp-team/marp-cli@latest --html --output docs/index.html docs/slide.md
 ```
 
-我已将 / docs 设置为托管在 GitHub Pages 上，以便您可以在以下 URL 中查看幻灯片：
+`/docs`をGitHub Pagesでホスティングするように設定しているので次のURLでスライドが見られる。
 
 * [https://backpaper0.github.io/spring-graphql-introduction/](https://backpaper0.github.io/spring-graphql-introduction/)
 
-## 演示程序
+## デモの手順
 
-### 准备
+### 準備
 
 ```text
 ./mvnw spring-boot:run
 ```
 
-在浏览器中打开[http://localhost:8080/my-graphiql](http://localhost:8080/my-graphiql)
+ブラウザで [http://localhost:8080/my-graphiql](http://localhost:8080/my-graphiql) を開く。
 
-#### ※关于GraphiQL
+#### ※GraphiQLについて
 
-Spring GraphQL 内置的 GraphQL 不支持认证和订阅操作，所以我们准备了我们自己调整的 GraphQL。
+Spring GraphQLにビルトインされているGraphiQLは認証と`subscription`操作に対応していないため独自に調整したGraphiQLを用意している。
 
-源代码在 `my-graphiql` 中。
+ソースコードは`my-graphiql`にある。
 
-如果您有一个使用 create-react-app 创建的 React 应用程序并想对其进行自定义，请先使用 `npm install` 准备依赖库。
+`create-react-app`で作ったReactアプリケーションとなっていて、カスタマイズしたい場合はまず`npm install`で依存ライブラリを準備する。
 
-然后用 `npm start` 启动它。在定制过程中，建议在此处检查操作的同时进行开发。为此，在 Spring Boot 应用程序端设置了 CORS。
+それから`npm start`で起動する。 カスタマイズ中はこちらで動作確認しながら開発を進めると良い。 なお、このためにSpring Bootアプリケーション側でCORSの設定を入れている。
 
-要将其嵌入到 Spring Boot 应用程序中，首先删除 Spring Boot 应用程序端的 `src/main/resources/static/my-graphiql`。然后运行 ​​`npm run build` 就会写出 `src/main/resources/static/my-graphiql` 中构建的 HTML 和 JS 文件。你所要做的就是 `mvn spring-boot:run`。
+Spring Bootアプリケーションに組み込むには、まずSpring Bootアプリケーション側の`src/main/resources/static/my-graphiql`を削除する。 それから`npm run build`を実施すると`src/main/resources/static/my-graphiql`にビルドされたHTMLやJSファイルが書き出される。 あとは`mvn spring-boot:run`をすれば良い。
 
 ### query操作
 
-试试幻灯片上的查询。
+スライドにもあったクエリーを試す。
 
 ```text
 query {
@@ -62,7 +62,7 @@ query {
 }
 ```
 
-尝试只获取标题。
+タイトルだけ取得するようにしてみる。
 
 ```text
 query {
@@ -72,7 +72,7 @@ query {
 }
 ```
 
-尝试使用变量。
+変数を使ってみる。
 
 ```text
 query GetArticle($id: ID!) {
@@ -88,7 +88,7 @@ query GetArticle($id: ID!) {
 }
 ```
 
-用 `curl` 试试。
+`curl`でも試してみる。
 
 ```text
 curl -s http://localhost:8080/graphql -H "Content-Type: application/json" -d '{"query": "{article(id: 1) { id, title, content, category { id, name } }}"}' | jq
@@ -96,7 +96,7 @@ curl -s http://localhost:8080/graphql -H "Content-Type: application/json" -d '{"
 
 ### subscription
 
-还可以尝试`subscription（订阅）`操作。
+`subscription`操作も試してみる。
 
 ```text
 subscription {
@@ -104,29 +104,29 @@ subscription {
 }
 ```
 
-它在结果区向上计数并从 1 到 10 显示。
+結果のエリアにカウントアップされて1から10まで表示される。
 
-用 `wscat` 检查一下。 `wscat` 可以通过 `npm install -g wscat` 安装。
+`wscat`でも確認してみる。 `wscat`は`npm install -g wscat`でインストールできる。
 
 ```text
 wscat --connect ws://localhost:8080/graphql
 ```
 
-我还不了解`subscription`协议，所以阅读 Spring GraphQL 代码并按照我找到的步骤操作。
+`subscription`のプロトコルはまだ理解していないので、Spring GraphQLのコードを読んでわかった手順を実施する。
 
-首先你需要`connection_init`。
+まずは`connection_init`が必要。
 
 ```text
 {"type": "connection_init"}
 ```
 
-然后订阅。如果您等待，则返回一个每秒递增的值。
+それから`subscribe`。 待っていると1秒おきにカウントアップする値が返される。
 
 ```text
 {"type": "subscribe", "id": "...", "payload": {"query": "subscription { count }"}}
 ```
 
-当然你也可以使用变量。
+もちろん変数も使える。
 
 ```text
 {"type": "subscribe", "id": "...", "payload": {"query": "subscription Count($size: Int!) { count(size: $size) }", "variables": {"size": 5 }}}
@@ -134,7 +134,7 @@ wscat --connect ws://localhost:8080/graphql
 
 ### DataLoader
 
-首先，N+1。
+まずはN + 1。
 
 ```text
 query {
@@ -147,9 +147,9 @@ query {
 }
 ```
 
-如果查看`Fetch Query.comics` 之后的日志，可以看到`comics` 发出了1 个查询，`comics.author` 发出了10 个查询。
+`Fetch Query.comics`以降のログを見ると`comics`で1回、`comics.author`で10回のクエリーが発行されていることがわかる。
 
-接下来是 Data Loader 版本。
+次にDataLoader版。
 
 ```text
 query {
@@ -162,11 +162,11 @@ query {
 }
 ```
 
-如果查看`Fetch Query.comics` 之后的日志，可以看到`comics` 和`comics.author` 都只需要发出一个查询。
+`Fetch Query.comics`以降のログを見ると`comics`と`comics.author`が共に1回ずつのクエリー発行で済んでいることがわかる。
 
-### 分页
+### ページング
 
-首先，在不指定 after 的情况下发出查询并检查返回值。
+まずは`after`を指定せずクエリーーを発行して返ってくる値を確認する。
 
 ```text
 query GitCommits {
@@ -190,7 +190,7 @@ query GitCommits {
 }
 ```
 
-然后在查看 pageInfo 的值后在设置后尝试查询。
+それから`pageInfo`の値を見ながら`after`を設定しつつクエリーを試す。
 
 ```text
 query GitCommits {
@@ -214,7 +214,7 @@ query GitCommits {
 }
 ```
 
-也向后尝试。
+後方も試す。
 
 ```text
 query GitCommits {
@@ -238,9 +238,9 @@ query GitCommits {
 }
 ```
 
-### WIP: 认证/授权
+### WIP: 認証・認可
 
-运行以下查询会导致错误（未经授权）。
+次のクエリーを実行するとエラー\(`Unauthorized`\)になる。
 
 ```text
 {
@@ -250,7 +250,7 @@ query GitCommits {
 }
 ```
 
-如果在 `REQUEST HEADERS` 的地方写入如下 JSON 并执行，则不会出错并返回值。
+REQUEST HEADERSという場所に次のJSONを書いて実行するとエラーにならず値が返ってくる。
 
 ```javascript
 {
@@ -258,9 +258,9 @@ query GitCommits {
 }
 ```
 
-这将`@PreAuthorize("isAuthenticated()")` 添加到相应`DataFetcher` 中调用的组件的方法中。
+これは該当の`DataFetcher`内で呼び出されているコンポーネントのメソッドに`@PreAuthorize("isAuthenticated()")`を付けている。
 
-我还举了一个用自定义指令表达身份验证的例子。以下查询将访问名为`@authenticated` 的自定义定向受保护字段。
+カスタム`directive`で認証を表現した例も作ってみた。 次のクエリーが`@authenticated`というカスタム`directive`で保護したフィールドへのアクセスとなる。
 
 ```text
 {
@@ -270,9 +270,9 @@ query GitCommits {
 }
 ```
 
-尝试使用和不使用 `Authorization` 标头的区别。
+`Authorization`ヘッダーの有無による違いを試してみてほしい。
 
-指标
+### メトリクス
 
 ```text
 curl -s localhost:8080/actuator/metrics/graphql.request | jq
@@ -286,7 +286,7 @@ curl -s localhost:8080/actuator/metrics/graphql.datafetcher | jq
 curl -s localhost:8080/actuator/metrics/graphql.error | jq
 ```
 
-## 执照
+## ライセンス
 
-CC BY 4.0 适用于幻灯片（docs / 下的文件），MIT 适用于源代码（幻灯片以外的文件）。
+スライド\(`docs/`配下にあるファイル\)は[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)、ソースコード\(スライド以外のファイル\)は[MIT](https://opensource.org/licenses/mit-license.php)を適用します。
 

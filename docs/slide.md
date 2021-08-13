@@ -8,25 +8,25 @@ theme: gaia
 
 # slide
 
-  
-    div.two-columns {  
-        display: grid;  
-        grid-gap: 1rem;  
-    }  
-    div.left-column {  
-        grid-column: 1;  
-    }  
-    div.right-column {  
-        grid-column: 2;  
-    }  
-
+```text
+div.two-columns {  
+    display: grid;  
+    grid-gap: 1rem;  
+}  
+div.left-column {  
+    grid-column: 1;  
+}  
+div.right-column {  
+    grid-column: 2;  
+}  
+```
 
 ## Spring GraphQL Introduction
 
 ### 概要
 
 * [Spring GraphQL](https://github.com/spring-projects/spring-graphql)のマイルストーンバージョンが発表された
-* GraphQLは良いものだと思うので、みなさんにもSpring GraphQLを知ってもらいたい！
+* GraphQLは $$a = b$$ 良いものだと思うので、みなさんにもSpring GraphQLを知ってもらいたい！
 * まずGraphQLについて簡単に説明
 * それからSpring GraphQLを使ったサーバー側の実装方法を説明
 
@@ -67,9 +67,9 @@ GraphQLはAPIのためのクエリ言語
 
 #### 型定義の例：ブログ記事とカテゴリー
 
- \`\`\`gql type Article { id: ID title: String content: String category: Category } type Category { id: ID name: String } type Query { article\(id: ID\): Article } \`\`\`
+\`\`\`gql type Article { id: ID title: String content: String category: Category } type Category { id: ID name: String } type Query { article\(id: ID\): Article } \`\`\`
 
- \`\`\`gql query { article\(id: "1"\) { id title content category { id name } } } \`\`\`
+\`\`\`gql query { article\(id: "1"\) { id title content category { id name } } } \`\`\`
 
 &lt;/div&gt;
 
@@ -135,9 +135,9 @@ subscription {
 
 #### クエリの例：ブログ記事とカテゴリー
 
- クエリ \`\`\`gql query { article\(id: "1"\) { title category { name } } } \`\`\`
+クエリ \`\`\`gql query { article\(id: "1"\) { title category { name } } } \`\`\`
 
- 結果\(JSON\) \`\`\`json { "data": { "article": { "title": "Spring GraphQL introduction", "category": { "name": "Spring" } } } } \`\`\`
+結果\(JSON\) \`\`\`json { "data": { "article": { "title": "Spring GraphQL introduction", "category": { "name": "Spring" } } } } \`\`\`
 
 &lt;/div&gt;
 
@@ -155,9 +155,9 @@ subscription {
 
 #### GraphQLとREST、リクエスト回数の比較
 
- GraphQL !\[\]\(./communication-graphql.svg\)
+GraphQL !\[\]\(./communication-graphql.svg\)
 
- REST !\[\]\(./communication-rest.svg\)
+REST !\[\]\(./communication-rest.svg\)
 
 &lt;/div&gt;
 
