@@ -2,51 +2,51 @@
 
 ## 概要
 
-[JSUG勉強会 2021年その2 Spring GraphQLをとことん語る夕べ](https://jsug.doorkeeper.jp/events/124798)での発表のスライドとコード例です。
+JSUG Study Group 2021 Part 2 这是晚上的演示文稿的幻灯片和代码示例，彻底讨论了 Spring GraphQL。
 
-## 資料のビルド
+## 文档构建
 
-PlantUMLで描いた図をビルドする。
+构建用 PlantUML 绘制的图形。
 
 ```bash
 java -jar ~/plantuml.jar -tsvg docs/plantuml.pu
 ```
 
-スライドをビルドする。
+构建幻灯片。
 
 ```bash
 npx @marp-team/marp-cli@latest --html --output docs/index.html docs/slide.md
 ```
 
-`/docs`をGitHub Pagesでホスティングするように設定しているので次のURLでスライドが見られる。
+我已将 / docs 设置为托管在 GitHub Pages 上，以便您可以在以下 URL 中查看幻灯片：
 
 * [https://backpaper0.github.io/spring-graphql-introduction/](https://backpaper0.github.io/spring-graphql-introduction/)
 
-## デモの手順
+## 演示程序
 
-### 準備
+### 准备
 
 ```text
 ./mvnw spring-boot:run
 ```
 
-ブラウザで [http://localhost:8080/my-graphiql](http://localhost:8080/my-graphiql) を開く。
+在浏览器中打开[http://localhost:8080/my-graphiql](http://localhost:8080/my-graphiql)
 
-#### ※GraphiQLについて
+#### ※关于GraphiQL
 
-Spring GraphQLにビルトインされているGraphiQLは認証と`subscription`操作に対応していないため独自に調整したGraphiQLを用意している。
+Spring GraphQL 内置的 GraphQL 不支持认证和订阅操作，所以我们准备了我们自己调整的 GraphQL。
 
-ソースコードは`my-graphiql`にある。
+源代码在 `my-graphiql` 中。
 
-`create-react-app`で作ったReactアプリケーションとなっていて、カスタマイズしたい場合はまず`npm install`で依存ライブラリを準備する。
+如果您有一个使用 create-react-app 创建的 React 应用程序并想对其进行自定义，请先使用 `npm install` 准备依赖库。
 
-それから`npm start`で起動する。 カスタマイズ中はこちらで動作確認しながら開発を進めると良い。 なお、このためにSpring Bootアプリケーション側でCORSの設定を入れている。
+然后用 `npm start` 启动它。在定制过程中，建议在此处检查操作的同时进行开发。为此，在 Spring Boot 应用程序端设置了 CORS。
 
-Spring Bootアプリケーションに組み込むには、まずSpring Bootアプリケーション側の`src/main/resources/static/my-graphiql`を削除する。 それから`npm run build`を実施すると`src/main/resources/static/my-graphiql`にビルドされたHTMLやJSファイルが書き出される。 あとは`mvn spring-boot:run`をすれば良い。
+要将其嵌入到 Spring Boot 应用程序中，首先删除 Spring Boot 应用程序端的 `src/main/resources/static/my-graphiql`。然后运行 ​​`npm run build` 就会写出 `src/main/resources/static/my-graphiql` 中构建的 HTML 和 JS 文件。你所要做的就是 `mvn spring-boot:run`。
 
 ### query操作
 
-スライドにもあったクエリーを試す。
+试试幻灯片上的查询。
 
 ```text
 query {
@@ -62,7 +62,7 @@ query {
 }
 ```
 
-タイトルだけ取得するようにしてみる。
+尝试只获取标题。
 
 ```text
 query {
@@ -72,7 +72,7 @@ query {
 }
 ```
 
-変数を使ってみる。
+尝试使用变量。
 
 ```text
 query GetArticle($id: ID!) {
@@ -88,7 +88,7 @@ query GetArticle($id: ID!) {
 }
 ```
 
-`curl`でも試してみる。
+用 `curl` 试试。
 
 ```text
 curl -s http://localhost:8080/graphql -H "Content-Type: application/json" -d '{"query": "{article(id: 1) { id, title, content, category { id, name } }}"}' | jq
@@ -96,7 +96,7 @@ curl -s http://localhost:8080/graphql -H "Content-Type: application/json" -d '{"
 
 ### subscription
 
-`subscription`操作も試してみる。
+还可以尝试`subscription（订阅）`操作。
 
 ```text
 subscription {
@@ -104,17 +104,17 @@ subscription {
 }
 ```
 
-結果のエリアにカウントアップされて1から10まで表示される。
+它在结果区向上计数并从 1 到 10 显示。
 
-`wscat`でも確認してみる。 `wscat`は`npm install -g wscat`でインストールできる。
+用 `wscat` 检查一下。 `wscat` 可以通过 `npm install -g wscat` 安装。
 
 ```text
 wscat --connect ws://localhost:8080/graphql
 ```
 
-`subscription`のプロトコルはまだ理解していないので、Spring GraphQLのコードを読んでわかった手順を実施する。
+我还不了解`subscription`协议，所以阅读 Spring GraphQL 代码并按照我找到的步骤操作。
 
-まずは`connection_init`が必要。
+首先你需要`connection_init`。
 
 ```text
 {"type": "connection_init"}
