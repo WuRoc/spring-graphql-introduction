@@ -4,4 +4,5 @@
 * [Consuming a RESTful Web Service](untitled.md)
 * [Scheduling Tasks](scheduling-tasks.md)
 * [三种弹窗](untitled-1.md)
+* [@Bean](bean.md)
 
